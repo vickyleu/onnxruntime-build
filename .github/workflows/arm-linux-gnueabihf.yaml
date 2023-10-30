@@ -126,5 +126,5 @@ jobs:
       - name: Build onnxruntime for 32-bit ARM
         shell: bash
         run: |
-          export CMAKE_OPTIONS="-Donnxruntime_CROSS_COMPILING=ON -DCPUINFO_SUPPORTED=OFF"
+          export CMAKE_OPTIONS="-Donnxruntime_CROSS_COMPILING=ON -Donnxruntime_ENABLE_CPUINFO=OFF"
           ./build-static_lib.sh
