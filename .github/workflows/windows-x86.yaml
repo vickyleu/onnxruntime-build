@@ -23,10 +23,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2019]
+        python-version: ["3.8"]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Cache build result for ${{ env.ONNXRUNTIME_VERSION }}
         id: cache-build-result
@@ -43,6 +49,7 @@ jobs:
 
       - name: Update ONNX Runtime
         if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           echo $ONNXRUNTIME_VERSION > ONNXRUNTIME_VERSION
           git submodule update --init --depth=1 onnxruntime
@@ -50,16 +57,24 @@ jobs:
           git fetch origin tag v$ONNXRUNTIME_VERSION
           git checkout v$ONNXRUNTIME_VERSION
 
+          if [[ $ONNXRUNTIME_VERSION =~ 1.16.[0-9] ]]; then
+            sed -i.bak '13d' onnxruntime/core/platform/windows/stacktrace.cc
+            git status
+            git diff
+          fi
+
       - name: Download protoc
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         shell: bash
         run: |
           # see ./cmake/deps.txt
           if [[ ${{ env.ONNXRUNTIME_VERSION }} =~ 1.14.[0-9] ]]; then
-            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.3/protoc-3.20.3-win64.zip
+            curl -SL -o protoc-3.20.3-win64.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.20.3/protoc-3.20.3-win64.zip
+            ls -lh
             unzip protoc-3.20.3-win64.zip
           elif [[ ${{ env.ONNXRUNTIME_VERSION }} =~ 1.1[56].[0-9] ]]; then
-            wget https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-win64.zip
+            curl -SL -o protoc-21.12-win64.zip https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-win64.zip
+            ls -lh
             unzip protoc-21.12-win64.zip
           else
             echo "Unsupported version ${{ env.ONNXRUNTIME_VERSION }}"
@@ -90,8 +105,6 @@ jobs:
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install python3 git-lfs
           python3 -m pip install cmake
           cmake --version
 
@@ -104,7 +117,7 @@ jobs:
           cmake --version
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
 
-          export CMAKE_OPTIONS='-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug> -A Win32 --compile-no-warning-as-error -Donnxruntime_BUILD_UNIT_TESTS=OFF -DONNX_CUSTOM_PROTOC_EXECUTABLE=$GITHUB_WORKSPACE/bin/protoc'
+          export CMAKE_OPTIONS='-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug> -DONNX_USE_MSVC_STATIC_RUNTIME=ON -Dprotobuf_MSVC_STATIC_RUNTIME=ON -Dgtest_force_shared_crt=OFF -A Win32 -Donnxruntime_BUILD_UNIT_TESTS=OFF -DONNX_CUSTOM_PROTOC_EXECUTABLE=$GITHUB_WORKSPACE/bin/protoc'
           ./build-static_lib.sh
 
       - name: Collect result
@@ -119,7 +132,7 @@ jobs:
           mkdir $dst
           mv -v output/static_lib/* $dst
 
-          zip -r ${dst}.zip $dst/
+          tar cjvf $dst.tar.bz2 $dst
 
       - name: Publish to huggingface
         if: steps.cache-build-result.outputs.cache-hit != 'true'
@@ -143,7 +156,7 @@ jobs:
             cd huggingface
             git pull
 
-            name=onnxruntime-win-x86-static_lib-${ONNXRUNTIME_VERSION}.zip
+            name=onnxruntime-win-x86-static_lib-${ONNXRUNTIME_VERSION}.tar.bz2
 
             mv -v ../$name .
 
@@ -155,5 +168,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         with:
-          name: onnxruntime-win-x86-static_lib-${ONNXRUNTIME_VERSION}
-          path: onnxruntime-win-x86-static_lib-${ONNXRUNTIME_VERSION}
+          name: onnxruntime-win-x86-static_lib
+          path: onnxruntime-win-x86-static_lib*.tar.bz2

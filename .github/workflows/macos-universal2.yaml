@@ -1,6 +1,9 @@
-name: macos-x86_64
+name: macos-universal2
 
 on:
+  push:
+    branches:
+      - fix
   workflow_dispatch:
     inputs:
       version:
@@ -13,11 +16,11 @@ permissions:
 env:
   ONNXRUNTIME_VERSION:
     |- # Enter release tag name or version name in workflow_dispatch. Appropriate version if not specified
-    ${{ github.event.release.tag_name || github.event.inputs.version || '1.16.1' }}
+    ${{ github.event.release.tag_name || github.event.inputs.version || '1.16.0' }}
 
 jobs:
   macos_x86_64:
-    name: Build onnxruntime lib for macOS x86_64 on ${{ matrix.os }}
+    name: Build onnxruntime lib for macOS universal2 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -38,14 +41,14 @@ jobs:
         id: cache-build-result
         uses: actions/cache@v2
         with:
-          path: onnxruntime-osx-x86_64-${{ env.ONNXRUNTIME_VERSION }}
-          key: onnxruntime-osx-x86_64-${{ env.ONNXRUNTIME_VERSION }}-cache-v1
+          path: onnxruntime-osx-universal2-${{ env.ONNXRUNTIME_VERSION }}
+          key: onnxruntime-osx-universal2-${{ env.ONNXRUNTIME_VERSION }}-cache-v1
 
       - name: ccache
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ matrix.os }}-x86_64
+          key: ${{ matrix.os }}-universal2
 
       - name: Update ONNX Runtime
         if: steps.cache-build-result.outputs.cache-hit != 'true'
@@ -99,7 +102,7 @@ jobs:
           python3 -m pip install cmake
           cmake --version
 
-      - name: Build onnxruntime for macOS x86_64
+      - name: Build onnxruntime for macOS universal2
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         shell: bash
         run: |
@@ -108,7 +111,7 @@ jobs:
           cmake --version
           export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
 
-          export CMAKE_OPTIONS="-Donnxruntime_USE_COREML=ON -DCMAKE_OSX_ARCHITECTURES='x86_64' --compile-no-warning-as-error -Donnxruntime_BUILD_UNIT_TESTS=OFF -DONNX_CUSTOM_PROTOC_EXECUTABLE=$GITHUB_WORKSPACE/bin/protoc"
+          export CMAKE_OPTIONS="-Donnxruntime_USE_COREML=ON -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64' --compile-no-warning-as-error -Donnxruntime_BUILD_UNIT_TESTS=OFF -DONNX_CUSTOM_PROTOC_EXECUTABLE=$GITHUB_WORKSPACE/bin/protoc"
           ./build-static_lib.sh
 
       - name: Collect result
@@ -121,7 +124,7 @@ jobs:
 
           cp -v onnxruntime/include/onnxruntime/core/providers/coreml/coreml_provider_factory.h output/static_lib/include
 
-          dst=onnxruntime-osx-x86_64-static_lib-${ONNXRUNTIME_VERSION}
+          dst=onnxruntime-osx-universal2-static_lib-${ONNXRUNTIME_VERSION}
           mkdir $dst
           mv -v output/static_lib/* $dst
 
@@ -149,7 +152,7 @@ jobs:
             cd huggingface
             git pull
 
-            name=onnxruntime-osx-x86_64-static_lib-${ONNXRUNTIME_VERSION}.zip
+            name=onnxruntime-osx-universal2-static_lib-${ONNXRUNTIME_VERSION}.zip
 
             mv -v ../$name .
 
@@ -161,5 +164,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         with:
-          name: onnxruntime-osx-x86_64-static_lib-${ONNXRUNTIME_VERSION}
-          path: onnxruntime-osx-x86_64-static_lib-${ONNXRUNTIME_VERSION}
+          name: onnxruntime-osx-universal2-static_lib-${ONNXRUNTIME_VERSION}
+          path: onnxruntime-osx-universal2-static_lib-${ONNXRUNTIME_VERSION}
