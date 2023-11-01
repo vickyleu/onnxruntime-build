@@ -145,7 +145,7 @@ jobs:
 
             name=onnxruntime-linux-x64-static_lib-${ONNXRUNTIME_VERSION}.zip
 
-            mv -v ../$name .
+            cp -v ../$name .
 
             git status
             git add .
@@ -156,4 +156,4 @@ jobs:
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         with:
           name: onnxruntime-linux-x64-static_lib-${ONNXRUNTIME_VERSION}
-          path: onnxruntime-linux-x64-static_lib-${ONNXRUNTIME_VERSION}
+          path: onnxruntime-linux-x64-static_lib*

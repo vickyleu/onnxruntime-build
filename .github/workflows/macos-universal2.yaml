@@ -154,7 +154,7 @@ jobs:
 
             name=onnxruntime-osx-universal2-static_lib-${ONNXRUNTIME_VERSION}.zip
 
-            mv -v ../$name .
+            cp -v ../$name .
 
             git status
             git add .
@@ -165,4 +165,4 @@ jobs:
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         with:
           name: onnxruntime-osx-universal2-static_lib-${ONNXRUNTIME_VERSION}
-          path: onnxruntime-osx-universal2-static_lib-${ONNXRUNTIME_VERSION}
+          path: onnxruntime-osx-universal2-static_lib*

@@ -160,7 +160,7 @@ jobs:
 
             name=onnxruntime-win-x64-static_lib-${ONNXRUNTIME_VERSION}.tar.bz2
 
-            mv -v ../$name .
+            cp -v ../$name .
 
             git status
             git add .
