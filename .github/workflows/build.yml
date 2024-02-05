@@ -1,14 +1,20 @@
 name: Build
 
 on:
+
   workflow_dispatch:
     inputs:
       onnxruntime-version:
-        description: "ONNX Runtime version"
+        description: "ONNX Runtime version, e.g., 1.15.1"
         type: string
   push:
+    branches:
+      - linux2
     tags:
       - v*.*.*
+
+permissions:
+  contents: write
 
 env:
   GCC_VERSION: 9
@@ -39,7 +45,7 @@ jobs:
           #   post-build: tar -czvf $ARCHIVE_DIR/$ARCHIVE_NAME.tgz -C $OUTPUT_DIR .
 
           - target: linux-x64-static_lib
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-20.04
             build: ./build-static_lib.sh
             post-build: tar -czvf $ARCHIVE_DIR/$ARCHIVE_NAME.tgz -C $OUTPUT_DIR .
 
@@ -47,7 +53,7 @@ jobs:
           #   runs-on: ghcr.io/cirruslabs/macos-ventura-xcode:14.2
           #   build: ./build-static_lib.sh
           #   post-build: tar -czvf $ARCHIVE_DIR/$ARCHIVE_NAME.tgz -C $OUTPUT_DIR .
-          #
+
           # - target: osx-universal2-static_lib
           #   runs-on: ghcr.io/cirruslabs/macos-ventura-xcode:14.2
           #   build: >
@@ -171,7 +177,7 @@ jobs:
 
   release:
     name: Release
-    if: startsWith(github.ref, 'refs/tags/v')
+    # if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -184,6 +190,7 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
+          tag: "1.16.0"
           omitName: true
           body: "Official Release: [ONNX Runtime ${{ github.ref_name }}](https://github.com/microsoft/onnxruntime/releases/tag/${{ github.ref_name }})"
           artifacts: "*/*.*"
