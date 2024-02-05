@@ -121,6 +121,17 @@ jobs:
 
           zip -r ${dst}.zip $dst/
 
+      - name: Upload v${{ env.ONNXRUNTIME_VERSION }}
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: "./*.zip"
+          overwrite: true
+          repo_name: csukuangfj/onnxruntime-libs
+          repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
+          tag: v${{ env.ONNXRUNTIME_VERSION }}
+
       - name: Publish to huggingface
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         env:

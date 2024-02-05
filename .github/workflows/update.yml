@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   update:
+    if: false
     name: Update
     runs-on: ubuntu-latest
     steps:

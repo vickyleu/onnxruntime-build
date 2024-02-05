@@ -1,0 +1,89 @@
+name: android
+
+on:
+  push:
+    branches:
+      - upload
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version information（e.g., 1.16.3）"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  ONNXRUNTIME_VERSION:
+    |- # Enter release tag name or version name in workflow_dispatch. Appropriate version if not specified
+    ${{ github.event.release.tag_name || github.event.inputs.version || '1.16.3' }}
+
+jobs:
+  windows_x64:
+    name: Download android onnxruntime lib
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download android onnxruntime lib
+        shell: bash
+        run: |
+          version=${{ env.ONNXRUNTIME_VERSION }}
+          wget -q https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-android/$version/onnxruntime-android-$version.aar
+          mv onnxruntime-android-$version.aar onnxruntime-android-$version.zip
+          unzip onnxruntime-android-$version.zip
+
+      - name: Upload v${{ env.ONNXRUNTIME_VERSION }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: "./*.zip"
+          overwrite: true
+          repo_name: csukuangfj/onnxruntime-libs
+          repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
+          tag: v${{ env.ONNXRUNTIME_VERSION }}
+
+      - name: Publish to huggingface
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 20
+          timeout_seconds: 200
+          shell: bash
+          command: |
+            git config --global user.email "csukuangfj@gmail.com"
+            git config --global user.name "Fangjun Kuang"
+
+            rm -rf huggingface
+            export GIT_LFS_SKIP_SMUDGE=1
+
+            ls -lh
+
+            git clone https://huggingface.co/csukuangfj/android-onnxruntime-libs huggingface
+            cd huggingface
+            git pull
+
+            version=${{ env.ONNXRUNTIME_VERSION }}
+
+            src=onnxruntime-android-$version
+
+            dst=v$version
+            if [[ ! -d $dst ]]; then
+              mkdir $dst
+              mv -v ../../$src/headers $dst/
+              mv -v ../../$src/jni $dst/
+
+              git status
+              git add .
+              git commit -m "add $version"
+              git push https://huggingface.co/csukuangfj/android-onnxruntime-libs main
+            fi
