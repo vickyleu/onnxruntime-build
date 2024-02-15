@@ -18,6 +18,7 @@ esac
 PARALLEL_JOB_COUNT=${PARALLEL_JOB_COUNT:=$CPU_COUNT}
 
 cd $(dirname $0)
+echo "pwd: $PWD"
 
 (
     git submodule update --init --depth=1 $ONNXRUNTIME_SOURCE_DIR
@@ -29,6 +30,7 @@ cd $(dirname $0)
     git submodule update --init --depth=1 --recursive
 )
 
+ls -lh onnxruntime/cmake/*ios*
 cmake \
     -S $SOURCE_DIR \
     -B $BUILD_DIR \
