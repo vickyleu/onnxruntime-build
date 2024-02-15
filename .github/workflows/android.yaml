@@ -77,13 +77,12 @@ jobs:
             src=onnxruntime-android-$version
 
             dst=v$version
-            if [[ ! -d $dst ]]; then
-              mkdir $dst
-              mv -v ../../$src/headers $dst/
-              mv -v ../../$src/jni $dst/
+            rm -rf $dst
+            mkdir $dst
+            mv -v ../../$src/headers $dst/
+            mv -v ../../$src/jni $dst/
 
-              git status
-              git add .
-              git commit -m "add $version"
-              git push https://huggingface.co/csukuangfj/android-onnxruntime-libs main
-            fi
+            git status
+            git add .
+            git commit -m "add $version"
+            git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/android-onnxruntime-libs main
