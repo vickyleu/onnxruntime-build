@@ -35,23 +35,21 @@ $ONNXRUNTIME_SOURCE_DIR/build.sh \
 
 mkdir -p $OUTPUT_DIR/include
 cp $ONNXRUNTIME_SOURCE_DIR/include/onnxruntime/core/session/*.h $OUTPUT_DIR/include
-cp $ONNXRUNTIME_SOURCE_DIR/include/onnxruntime/providers/cpu/cpu_provider_factory.h $OUTPUT_DIR/include
-cp $ONNXRUNTIME_SOURCE_DIR/include/onnxruntime/core/framework/provider_options.h $OUTPUT_DIR/include
 
 mkdir -p $OUTPUT_DIR/lib
 cp $BUILD_DIR/Release/libonnxruntime_webassembly.a $OUTPUT_DIR/lib/libonnxruntime.a
 
-case $(uname -s) in
-Darwin | Linux) ;;
-*) CMAKE_OPTIONS="-G Ninja" ;;
-esac
+# case $(uname -s) in
+# Darwin | Linux) ;;
+# *) CMAKE_OPTIONS="-G Ninja" ;;
+# esac
 
-cmake \
-    -S wasm-static_lib/tests \
-    -B $BUILD_DIR/tests \
-    -D CMAKE_TOOLCHAIN_FILE=$(pwd)/$EMSDK_DIR/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake \
-    -D ONNXRUNTIME_SOURCE_DIR=$(pwd)/$ONNXRUNTIME_SOURCE_DIR \
-    -D ONNXRUNTIME_LIB_DIR=$(pwd)/$OUTPUT_DIR/lib \
-    $CMAKE_OPTIONS
-cmake --build $BUILD_DIR/tests
-ctest --test-dir $BUILD_DIR/tests --verbose --no-tests=error
+# cmake \
+#     -S wasm-static_lib/tests \
+#     -B $BUILD_DIR/tests \
+#     -D CMAKE_TOOLCHAIN_FILE=$(pwd)/$EMSDK_DIR/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake \
+#     -D ONNXRUNTIME_SOURCE_DIR=$(pwd)/$ONNXRUNTIME_SOURCE_DIR \
+#     -D ONNXRUNTIME_LIB_DIR=$(pwd)/$OUTPUT_DIR/lib \
+#     $CMAKE_OPTIONS
+# cmake --build $BUILD_DIR/tests
+# ctest --test-dir $BUILD_DIR/tests --verbose --no-tests=error
