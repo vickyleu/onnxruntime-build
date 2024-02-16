@@ -51,6 +51,7 @@ function(bundle_static_library bundled_target_name)
 
         if(dependencies)
             foreach(dependency IN LISTS dependencies)
+                message(STATUS "dependency: ${dependency}")
                 recursively_collect_dependencies(${dependency})
             endforeach()
         endif()
