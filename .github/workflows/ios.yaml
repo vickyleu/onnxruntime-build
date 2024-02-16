@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - fix-aarch64
-    paths:
-      - '.github/workflows/ios.yaml'
-
   workflow_dispatch:
     inputs:
       version:

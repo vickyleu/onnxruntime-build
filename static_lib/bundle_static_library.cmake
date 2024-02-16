@@ -41,7 +41,16 @@ function(bundle_static_library bundled_target_name)
         get_target_property(input_type ${input_target} TYPE)
 
         if(${input_type} STREQUAL "STATIC_LIBRARY")
-            list(APPEND static_libs "$<TARGET_FILE:${input_target}>")
+            set(tmp_file "$<TARGET_FILE:${input_target}>")
+            if(CMAKE_OSX_SYSROOT STREQUAL iphoneos OR CMAKE_OSX_SYSROOT STREQUAL iphonesimulator)
+              get_property(tmp_file_location TARGET ${input_target} PROPERTY LOCATION)
+
+              message(STATUS "before replace: ${tmp_file_location}")
+              string(REPLACE \${EFFECTIVE_PLATFORM_NAME} "-${CMAKE_OSX_SYSROOT}" tmp_file ${tmp_file_location})
+              message(STATUS "after replace: ${tmp_file}")
+            endif()
+
+            list(APPEND static_libs ${tmp_file})
             get_target_property(dependencies ${input_target} LINK_LIBRARIES)
         elseif(${input_type} STREQUAL "INTERFACE_LIBRARY")
             get_target_property(dependencies ${input_target} INTERFACE_LINK_LIBRARIES)
@@ -57,6 +66,7 @@ function(bundle_static_library bundled_target_name)
         endif()
 
         set(static_libs ${static_libs} PARENT_SCOPE)
+        message(STATUS "static_libs: ${static_libs}")
     endfunction()
 
     foreach(target_name IN ITEMS ${ARGN})
