@@ -1,0 +1,264 @@
+name: risc-v
+
+on:
+  push:
+    branches:
+      - risc-v
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version information（e.g., 1.16.1）"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  ONNXRUNTIME_VERSION:
+    |- # Enter release tag name or version name in workflow_dispatch. Appropriate version if not specified
+    ${{ github.event.release.tag_name || github.event.inputs.version || 'main' }}
+
+jobs:
+  linux:
+    name: Build onnxruntime lib for risc-v
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache build result for ${{ env.ONNXRUNTIME_VERSION }}
+        id: cache-build-result
+        uses: actions/cache@v2
+        with:
+          path: onnxruntime-linux-riscv-${{ env.ONNXRUNTIME_VERSION }}
+          key: onnxruntime-linux-riscv-${{ env.ONNXRUNTIME_VERSION }}-cache-v1
+
+      - name: ccache
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-riscv
+
+      - name: Update ONNX Runtime
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          if [[ ${{ env.ONNXRUNTIME_VERSION }} == main ]]; then
+            echo "here1: $ONNXRUNTIME_VERSION"
+            git submodule update --init --depth=1 onnxruntime
+            cd onnxruntime
+            git fetch
+            git reset --hard origin/main
+            git log | head
+          else
+            echo "here2: $ONNXRUNTIME_VERSION"
+            echo $ONNXRUNTIME_VERSION > ONNXRUNTIME_VERSION
+            git submodule update --init --depth=1 onnxruntime
+            cd onnxruntime
+            git fetch origin tag v$ONNXRUNTIME_VERSION
+            git checkout v$ONNXRUNTIME_VERSION
+          fi
+
+      - name: Download protoc
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          # see ./cmake/deps.txt
+          if [[ ${{ env.ONNXRUNTIME_VERSION }} =~ 1.14.[0-9] ]]; then
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.3/protoc-3.20.3-linux-x86_64.zip
+            unzip protoc-3.20.3-linux-x86_64.zip
+          elif [[ ${{ env.ONNXRUNTIME_VERSION }} =~ 1.1[567].[0-9] ]]; then
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-linux-x86_64.zip
+            unzip protoc-21.12-linux-x86_64.zip
+          elif [[ ${{ env.ONNXRUNTIME_VERSION }} == main ]]; then
+            wget https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-linux-x86_64.zip
+            unzip protoc-21.12-linux-x86_64.zip
+          else
+            echo "Unsupported version ${{ env.ONNXRUNTIME_VERSION }}"
+            exit 1
+          fi
+
+          ./bin/protoc --version
+
+      - name: Set environment variable
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          echo "$GITHUB_WORKSPACE/bin"  >> "$GITHUB_PATH"
+
+      - name: Display protoc info for ${{ env.ONNXRUNTIME_VERSION }}
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          protoc --version
+
+      - name: Show current directory
+        shell: bash
+        run: |
+          ls -lh
+          echo $PWD
+
+      - name: Install dependencies
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3 git-lfs
+          python3 -m pip install cmake ninja
+          cmake --version
+
+      - name: Install toolchain
+        shell: bash
+        run: |
+          cd onnxruntime
+          DIR=$PWD/tools/scripts
+          ORT_ROOT_DIR=$DIR/../..
+          PREBUILT_DIR="${ORT_ROOT_DIR}/riscv_tools"
+          echo "The riscv tool prefix path: ${PREBUILT_DIR}"
+          mkdir -p $PREBUILT_DIR
+          WORK_DIR=$DIR/.prebuilt
+
+          RISCV_GNU_TOOLCHAIN_URL="https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download"
+          TOOLCHAIN_VERSION="2023.11.20"
+          RISCV_TOOLCHAIN_FILE_NAME="riscv64-glibc-ubuntu-22.04-llvm-nightly-2023.11.20-nightly.tar.gz"
+          RISCV_TOOLCHAIN_FILE_SHA="98d6531b757fac01e065460c19abe8974976c607a8d88631cc5c1529d90ba7ba"
+          TOOLCHAIN_PATH_PREFIX=${PREBUILT_DIR}
+          execute () {
+            if ! eval "$1"; then
+              echo "command:\"$1\" error"
+              exit 1
+            fi
+          }
+
+          execute "mkdir -p $WORK_DIR"
+          # Download and install the toolchain from
+          # https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download
+          download_file() {
+            local file_name="$1"
+            local install_path="$2"
+            local file_sha="$3"
+
+            echo "Install $1 to $2"
+            if [[ "$(ls -A "$2")" ]]; then
+              read -rp "The file already exists. Keep it (y/n)? " replaced
+              case ${replaced:0:1} in
+                y|Y )
+                  echo "Skip download $1."
+                  return
+                ;;
+                * )
+                  rm -rf "$2"
+                ;;
+              esac
+            fi
+
+            echo "Download ${file_name} ..."
+            mkdir -p "$install_path"
+            wget --progress=bar:force:noscroll --directory-prefix="${WORK_DIR}" \
+              "${RISCV_GNU_TOOLCHAIN_URL}/${TOOLCHAIN_VERSION}/${file_name}" && \
+              echo "${file_sha} ${WORK_DIR}/${file_name}" | sha256sum -c -
+            echo "Extract ${file_name} ..."
+            tar -C "${install_path}" -xf "${WORK_DIR}/${file_name}" --no-same-owner \
+              --strip-components=1
+          }
+          download_file "${RISCV_TOOLCHAIN_FILE_NAME}" "${TOOLCHAIN_PATH_PREFIX}" "${RISCV_TOOLCHAIN_FILE_SHA}"
+
+      - name: Build onnxruntime for risc-v
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+          cmake --version
+          export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
+          cd onnxruntime
+          DIR=$PWD/tools/scripts
+          ORT_ROOT_DIR=$DIR/../..
+          PREBUILT_DIR="${ORT_ROOT_DIR}/riscv_tools"
+          echo "The riscv tool prefix path: ${PREBUILT_DIR}"
+          mkdir -p $PREBUILT_DIR
+          WORK_DIR=$DIR/.prebuilt
+          TOOLCHAIN_PATH_PREFIX=${PREBUILT_DIR}
+
+          RISCV_TOOLCHAIN_ROOT=${TOOLCHAIN_PATH_PREFIX}
+          RISCV_QEMU_PATH=${TOOLCHAIN_PATH_PREFIX}/bin/qemu-riscv64
+
+          ls -lh $RISCV_TOOLCHAIN_ROOT/bin
+
+          cd ..
+
+          ls -lh /home/runner/work/onnxruntime-build/onnxruntime-build/onnxruntime/cmake/riscv64.toolchain.cmake
+          echo "PWD: $PWD"
+
+          export CMAKE_OPTIONS="--compile-no-warning-as-error -Donnxruntime_BUILD_UNIT_TESTS=OFF -DONNX_CUSTOM_PROTOC_EXECUTABLE=$GITHUB_WORKSPACE/bin/protoc -Donnxruntime_CROSS_COMPILING=ON -DRISCV_TOOLCHAIN_ROOT=${RISCV_TOOLCHAIN_ROOT} -DRISCV_QEMU_PATH=$RISCV_QEMU_PATH -DCMAKE_TOOLCHAIN_FILE=/home/runner/work/onnxruntime-build/onnxruntime-build/onnxruntime/cmake/riscv64.toolchain.cmake -G Ninja"
+
+          ./build-static_lib.sh
+
+      - name: Collect result
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          ls -lh output/static_lib/
+          ls -lh output/static_lib/include
+          ls -lh output/static_lib/lib
+
+          dst=onnxruntime-linux-riscv-static_lib-${ONNXRUNTIME_VERSION}
+          mkdir $dst
+          mv -v output/static_lib/* $dst
+
+          zip -r ${dst}.zip $dst/
+
+      - name: Upload v${{ env.ONNXRUNTIME_VERSION }}
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: "./*.zip"
+          overwrite: true
+          repo_name: csukuangfj/onnxruntime-libs
+          repo_token: ${{ secrets.UPLOAD_GH_SHERPA_ONNX_TOKEN }}
+          # tag: v${{ env.ONNXRUNTIME_VERSION }}
+          tag: ${{ env.ONNXRUNTIME_VERSION }}
+
+      - name: Publish to huggingface
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 20
+          timeout_seconds: 200
+          shell: bash
+          command: |
+            git config --global user.email "csukuangfj@gmail.com"
+            git config --global user.name "Fangjun Kuang"
+
+            rm -rf huggingface
+            export GIT_LFS_SKIP_SMUDGE=1
+
+            ls -lh
+
+            git clone https://huggingface.co/csukuangfj/onnxruntime-libs huggingface
+            cd huggingface
+            git pull
+
+            name=onnxruntime-linux-riscv-static_lib-${ONNXRUNTIME_VERSION}.zip
+
+            cp -v ../$name .
+
+            git status
+            git add .
+            git commit -m "add $name"
+            git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/onnxruntime-libs main
+
+      - uses: actions/upload-artifact@v3
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        with:
+          name: onnxruntime-linux-riscv-static_lib-${ONNXRUNTIME_VERSION}
+          path: onnxruntime-linux-riscv-static_lib*

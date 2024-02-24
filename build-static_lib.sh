@@ -24,14 +24,16 @@ PARALLEL_JOB_COUNT=${PARALLEL_JOB_COUNT:=$CPU_COUNT}
 cd $(dirname $0)
 
 (
-    git submodule update --init --depth=1 $ONNXRUNTIME_SOURCE_DIR
+    # git submodule update --init --depth=1 $ONNXRUNTIME_SOURCE_DIR
     cd $ONNXRUNTIME_SOURCE_DIR
-    if [ $ONNXRUNTIME_VERSION != $(cat VERSION_NUMBER) ]; then
+    if [[ $ONNXRUNTIME_VERSION != $(cat VERSION_NUMBER) && $ONNXRUNTIME_VERSION != main ]]; then
         git fetch origin tag v$ONNXRUNTIME_VERSION
         git checkout v$ONNXRUNTIME_VERSION
     fi
     git submodule update --init --depth=1 --recursive
 )
+echo "PWD: $PWD"
+ls -lh /home/runner/work/onnxruntime-build/onnxruntime-build/onnxruntime/cmake/riscv64.toolchain.cmake
 
 cmake \
     -S $SOURCE_DIR \
