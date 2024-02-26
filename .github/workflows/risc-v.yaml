@@ -207,7 +207,7 @@ jobs:
           ls -lh /home/runner/work/onnxruntime-build/onnxruntime-build/onnxruntime/cmake/riscv64.toolchain.cmake
           echo "PWD: $PWD"
 
-          export CMAKE_OPTIONS="--compile-no-warning-as-error -Donnxruntime_BUILD_UNIT_TESTS=OFF -DONNX_CUSTOM_PROTOC_EXECUTABLE=$GITHUB_WORKSPACE/bin/protoc -Donnxruntime_CROSS_COMPILING=ON -DRISCV_TOOLCHAIN_ROOT=${RISCV_TOOLCHAIN_ROOT} -DRISCV_QEMU_PATH=$RISCV_QEMU_PATH -DCMAKE_TOOLCHAIN_FILE=/home/runner/work/onnxruntime-build/onnxruntime-build/onnxruntime/cmake/riscv64.toolchain.cmake -G Ninja"
+          export CMAKE_OPTIONS="--compile-no-warning-as-error -Donnxruntime_BUILD_UNIT_TESTS=OFF -DONNX_CUSTOM_PROTOC_EXECUTABLE=$GITHUB_WORKSPACE/bin/protoc -Donnxruntime_CROSS_COMPILING=ON -DRISCV_TOOLCHAIN_ROOT=${RISCV_TOOLCHAIN_ROOT} -DRISCV_QEMU_PATH=$RISCV_QEMU_PATH -DCMAKE_TOOLCHAIN_FILE=/home/runner/work/onnxruntime-build/onnxruntime-build/onnxruntime/cmake/riscv64.toolchain.cmake -G Ninja -Donnxruntime_USE_XNNPACK=ON"
 
           ./build-static_lib.sh
 
