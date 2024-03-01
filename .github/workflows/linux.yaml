@@ -170,7 +170,7 @@ jobs:
             cd huggingface
             git pull
 
-            name=onnxruntime-linux-x64-static_lib-${ONNXRUNTIME_VERSION}-${{ matrix.gcc_version }}.zip
+            name=onnxruntime-linux-x64-static_lib-${ONNXRUNTIME_VERSION}-gcc-${{ matrix.gcc_version }}.zip
 
             cp -v ../$name .
 
