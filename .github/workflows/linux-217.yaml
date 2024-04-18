@@ -97,7 +97,7 @@ jobs:
               ls -lh /opt/_internal/
               find /opt/_internal -name "python3"
 
-              export PATH=/opt/_internal/cpython-3.8.18/bin:$PATH
+              export PATH=/opt/_internal/cpython-3.8.19/bin:$PATH
               python3 --version
               python3 -m pip install ninja cmake
 
