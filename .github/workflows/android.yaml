@@ -1,14 +1,10 @@
 name: android
 
 on:
-  push:
-    branches:
-      - upload
-
   workflow_dispatch:
     inputs:
       version:
-        description: "Version information（e.g., 1.16.3）"
+        description: "Version information (e.g., 1.18.0)"
         required: true
 
 permissions:
@@ -17,7 +13,7 @@ permissions:
 env:
   ONNXRUNTIME_VERSION:
     |- # Enter release tag name or version name in workflow_dispatch. Appropriate version if not specified
-    ${{ github.event.release.tag_name || github.event.inputs.version || '1.16.3' }}
+    ${{ github.event.release.tag_name || github.event.inputs.version || '1.18.0' }}
 
 jobs:
   windows_x64:
@@ -65,6 +61,7 @@ jobs:
 
             rm -rf huggingface
             export GIT_LFS_SKIP_SMUDGE=1
+            export GIT_CLONE_PROTECTION_ACTIVE=false
 
             ls -lh
 
