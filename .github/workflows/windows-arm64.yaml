@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version information (e.g., 1.17.1)"
+        description: "Version information (e.g., 1.20.0)"
         required: true
 
 permissions:
@@ -16,7 +16,7 @@ permissions:
 env:
   ONNXRUNTIME_VERSION:
     |- # Enter release tag name or version name in workflow_dispatch. Appropriate version if not specified
-    ${{ github.event.release.tag_name || github.event.inputs.version || '1.17.1' }}
+    ${{ github.event.release.tag_name || github.event.inputs.version || '1.20.0' }}
 
 jobs:
   windows_arm64:
@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019]
+        os: [windows-2022]
         python-version: ["3.8"]
 
     steps:
@@ -76,7 +76,7 @@ jobs:
             ls -lh
             file protoc-3.20.3-win64.zip
             unzip protoc-3.20.3-win64.zip
-          elif [[ ${{ env.ONNXRUNTIME_VERSION }} =~ 1.1[5678].[0-9] ]]; then
+          elif [[ ${{ env.ONNXRUNTIME_VERSION }} =~ 1.1[56789].[0-9] || ${{ env.ONNXRUNTIME_VERSION }} =~ 1.20.[0-9] ]]; then
             curl -SL -o protoc-21.12-win64.zip https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-win64.zip
             ls -lh
             file protoc-21.12-win64.zip
@@ -192,7 +192,7 @@ jobs:
             git commit -m "add $name"
             git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/onnxruntime-libs main
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         with:
           name: onnxruntime-win-arm64-static_lib
