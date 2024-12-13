@@ -7,6 +7,14 @@ set(ONNX_USE_MSVC_STATIC_RUNTIME ON)
 set(protobuf_MSVC_STATIC_RUNTIME ON)
 set(onnxruntime_BUILD_SHARED_LIB ON)
 
+if(DEFINED ANDROID_ABI)
+  message(WARNING "For android")
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+  set(CMAKE_VERBOSE_MAKEFILE ON)
+else()
+  message(WARNING "Not for android")
+endif()
+
 if(NOT BUILD_SHARED_LIBS AND MSVC)
   # see https://cmake.org/cmake/help/latest/prop_tgt/MSVC_RUNTIME_LIBRARY.html
   # https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
