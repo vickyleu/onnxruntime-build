@@ -45,7 +45,6 @@ ls -lh
 cmake \
     -S $SOURCE_DIR \
     -B $BUILD_DIR \
-    -D CMAKE_TOOLCHAIN_FILE=$(pwd)/arm-linux-gnueabihf.toolchain.cmake \
     -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
     -D CMAKE_CONFIGURATION_TYPES=$CMAKE_BUILD_TYPE \
     -D CMAKE_INSTALL_PREFIX=$OUTPUT_DIR \
@@ -56,7 +55,6 @@ cmake \
 cmake \
     --build $BUILD_DIR \
     --config $CMAKE_BUILD_TYPE \
-    --path_to_protoc_exe /home/vickyleu/桌面/host_protoc/protoc \
     --parallel $PARALLEL_JOB_COUNT \
     $CMAKE_BUILD_OPTIONS
 cmake --install $BUILD_DIR --config $CMAKE_BUILD_TYPE
