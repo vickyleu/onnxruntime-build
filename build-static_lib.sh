@@ -45,6 +45,7 @@ ls -lh
 cmake \
     -S $SOURCE_DIR \
     -B $BUILD_DIR \
+    -D CMAKE_TOOLCHAIN_FILE=$(pwd)/arm-linux-gnueabihf.toolchain.cmake \
     -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
     -D CMAKE_CONFIGURATION_TYPES=$CMAKE_BUILD_TYPE \
     -D CMAKE_INSTALL_PREFIX=$OUTPUT_DIR \
