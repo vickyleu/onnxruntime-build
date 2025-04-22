@@ -18,7 +18,8 @@ Currently supports static library builds only with the default options.
 Build for native:
 
 ```sh
-export CMAKE_OPTIONS="-DCMAKE_TOOLCHAIN_FILE=$(pwd)/arm-linux-gnueabihf.toolchain.cmake -Donnxruntime_USE_LITE_PROTO=ON -Donnxruntime_CROSS_COMPILING=ON"
+export ONNXRUNTIME_VERSION=1.14.1
+export CMAKE_OPTIONS="-DCMAKE_TOOLCHAIN_FILE=/home/parallels/Developer/Github/onnxruntime-build/arm-linux-gnueabihf.toolchain.cmake -Donnxruntime_USE_LITE_PROTO=ON -Donnxruntime_CROSS_COMPILING=ON"
 ./build-static_lib.sh
 ```
 
