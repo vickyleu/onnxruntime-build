@@ -19,7 +19,7 @@ Build for native:
 
 ```sh
 export ONNXRUNTIME_VERSION=1.14.1
-export CMAKE_OPTIONS="-DCMAKE_TOOLCHAIN_FILE=/home/parallels/Developer/Github/onnxruntime-build/arm-linux-gnueabihf.toolchain.cmake -Donnxruntime_USE_LITE_PROTO=ON -Donnxruntime_CROSS_COMPILING=ON"
+export CMAKE_OPTIONS="-DCMAKE_TOOLCHAIN_FILE=/home/vickyleu/桌面/onnxruntime-build/arm-linux-gnueabihf.toolchain.cmake -Donnxruntime_USE_LITE_PROTO=ON -Donnxruntime_CROSS_COMPILING=ON"
 ./build-static_lib.sh
 ```
 

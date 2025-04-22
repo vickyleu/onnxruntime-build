@@ -56,6 +56,7 @@ cmake \
 cmake \
     --build $BUILD_DIR \
     --config $CMAKE_BUILD_TYPE \
+    --path_to_protoc_exe /home/vickyleu/桌面/host_protoc/protoc \
     --parallel $PARALLEL_JOB_COUNT \
     $CMAKE_BUILD_OPTIONS
 cmake --install $BUILD_DIR --config $CMAKE_BUILD_TYPE
