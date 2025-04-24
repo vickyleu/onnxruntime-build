@@ -47,6 +47,7 @@ set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
 -isystem ${GCC_INCLUDE_DIR}-fixed \
 -isystem ${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/libc/usr/include \
 -isystem ${CMAKE_SYSROOT}/usr/include \
+-D__STRICT_ANSI__ -D_GLIBCXX_USE_C99_MATH=1 -D_GLIBCXX_USE_C99=1  \
 " CACHE STRING "C++ compiler flags")
 
 # 链接器标志
@@ -59,7 +60,10 @@ add_definitions(-Disnan=std::isnan)
 
 # 不使用内建函数可能会解决ARM NEON问题
 add_definitions(-fno-builtin -fno-tree-vectorize)
-
+# 在工具链文件中添加这些定义
+add_definitions(-D__STRICT_ANSI__)
+add_definitions(-D_GLIBCXX_USE_C99_MATH=1)
+add_definitions(-D_GLIBCXX_USE_C99=1)
 # 将原生编译器标志传递给CMAKE变量
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_INIT}" CACHE STRING "C flags" FORCE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_INIT}" CACHE STRING "CXX flags" FORCE)
