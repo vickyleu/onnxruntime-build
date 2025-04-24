@@ -14,7 +14,7 @@ set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++-9")
 # 设置sysroot路径
 # 下载的工具链路径sysroot 强制关闭c23特性
 # https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/4.9-2017.01/arm-linux-gnueabihf/sysroot-eglibc-linaro-2017.01-arm-linux-gnueabihf.tar.xz
-set(CMAKE_ARCH_ROOT "/home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/")
+set(CMAKE_ARCH_ROOT "/home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf")
 set(CMAKE_SYSROOT "${CMAKE_ARCH_ROOT}/sysroot")
 
 # 设置Iconv内置标志
@@ -51,6 +51,9 @@ set(CMAKE_C_FLAGS_INIT "-nostdinc  \
   -isystem ${SYSROOT}/include \
  -D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
 
+#clude/flatbuffers/base.h:28:10: fatal error: cstdint: 没有那个文件或目录
+#28 | #include <cstdint>
+#|          ^~~~~~~~~
 
 set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
   -isystem ${SYSROOT}/usr/include \
@@ -64,7 +67,10 @@ set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
   -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
   -isystem ${SYSROOT}/usr/local/include \
   -isystem ${SYSROOT}/include \
+  -isystem /home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/4.9.4 \
+  -isystem /home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/4.9.4/arm-linux-gnueabihf \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4 \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4/tr1 \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf " CACHE STRING "cxx flags")
+
