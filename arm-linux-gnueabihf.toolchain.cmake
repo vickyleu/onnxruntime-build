@@ -1,77 +1,65 @@
-# Copied from https://github.com/Tencent/ncnn/blob/master/toolchains/arm-linux-gnueabihf.toolchain.cmake
+# 这是专门为您的环境配置的工具链文件
+# arm-linux-toolchain.cmake
+
+# 基本路径设置
+set(TOOLCHAIN_DIR "/home/vickyleu/build/arm-linux-gnueabihf")
+set(TARGET_TRIPLE "arm-linux-gnueabihf")
+set(COMPILER_VERSION "4.9.4")
+
+# 基本编译器设置
 set(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM_PROCESSOR armv7)
-set(CMAKE_CXX_STANDARD 17)            # 只填写整数
-set(CMAKE_CXX_STANDARD_REQUIRED ON)   # 如果编译器不支持则报错
-set(CMAKE_CXX_EXTENSIONS ON)         # GNU 扩展，是否使用纯标准模式
+set(CMAKE_SYSTEM_PROCESSOR arm)
 
+# 指定交叉编译器
+set(CMAKE_C_COMPILER ${TOOLCHAIN_DIR}/bin/${TARGET_TRIPLE}-gcc)
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_DIR}/bin/${TARGET_TRIPLE}-g++)
 
-
-# 设置GCC 9交叉编译器
-set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc-9")
-set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++-9")
-
-# 设置sysroot路径
-# 下载的工具链路径sysroot 强制关闭c23特性
-# https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/4.9-2017.01/arm-linux-gnueabihf/sysroot-eglibc-linaro-2017.01-arm-linux-gnueabihf.tar.xz
-# 设置变量以便于调试和简化路径
-# 设置变量以便于调试和简化路径
-set(ARCH_ROOT "/home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf")
-set(TOOLCHAIN_ROOT "/home/vickyleu/build/arm-linux-gnueabihf")
-# 确保设置正确的 SYSROOT
-set(SYSROOT "${CMAKE_SYSROOT}")
-
-# 指定查找程序、库和包的路径前缀
+# 设置sysroot
+set(CMAKE_SYSROOT ${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/sysroot)
 set(CMAKE_FIND_ROOT_PATH ${CMAKE_SYSROOT})
 
-# 调整查找策略
+# 查找程序、库和包的设置
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-set(CMAKE_C_SYSTEM_INCLUDE_PATH "${CMAKE_SYSROOT}/usr/include")
-set(CMAKE_CXX_SYSTEM_INCLUDE_PATH "${CMAKE_SYSROOT}/usr/include")
+# 定义关键路径
+set(GCC_INCLUDE_DIR "${TOOLCHAIN_DIR}/lib/gcc/${TARGET_TRIPLE}/${COMPILER_VERSION}/include")
+set(CXX_INCLUDE_DIR "${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/include/c++/${COMPILER_VERSION}")
+set(TARGET_INCLUDE_DIR "${CXX_INCLUDE_DIR}/${TARGET_TRIPLE}")
 
-# 确保链接使用sysroot中的库
-set(CMAKE_EXE_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT}/usr/lib")
-set(CMAKE_SHARED_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT}/usr/lib")
+# 自定义编译标志
+set(CMAKE_C_FLAGS_INIT "-nostdinc \
+-isystem ${GCC_INCLUDE_DIR} \
+-isystem ${GCC_INCLUDE_DIR}-fixed \
+-isystem ${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/libc/usr/include \
+-isystem ${CMAKE_SYSROOT}/usr/include \
+" CACHE STRING "C compiler flags")
 
-# C编译标志
-set(CMAKE_C_FLAGS_INIT "\
--isystem ${ARCH_ROOT}/include/c++/4.9.4 \
--isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
--isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
--isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include \
--isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
--isystem ${SYSROOT}/usr/include \
--isystem ${SYSROOT}/usr/include/linux \
--isystem ${SYSROOT}/usr/include/asm \
--isystem ${SYSROOT}/usr/include/asm-generic \
--isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
--isystem ${SYSROOT}/usr/local/include \
--isystem ${SYSROOT}/include \
--D_GNU_SOURCE -std=gnu11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
+set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
+-isystem ${CXX_INCLUDE_DIR} \
+-isystem ${TARGET_INCLUDE_DIR} \
+-isystem ${CXX_INCLUDE_DIR}/backward \
+-isystem ${GCC_INCLUDE_DIR} \
+-isystem ${GCC_INCLUDE_DIR}-fixed \
+-isystem ${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/libc/usr/include \
+-isystem ${CMAKE_SYSROOT}/usr/include \
+" CACHE STRING "C++ compiler flags")
 
-# C++编译标志 - 移除 -nostdinc 和 -nostdinc++，并使用 gnu++11 而不是 c++11
-set(CMAKE_CXX_FLAGS_INIT "\
--isystem ${ARCH_ROOT}/include/c++/4.9.4 \
--isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
--isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
--isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include \
--isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
--isystem ${SYSROOT}/usr/include \
--isystem ${SYSROOT}/usr/include/linux \
--isystem ${SYSROOT}/usr/include/asm \
--isystem ${SYSROOT}/usr/include/asm-generic \
--isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
--isystem ${SYSROOT}/usr/local/include \
--isystem ${SYSROOT}/include \
--D_GNU_SOURCE -std=gnu++11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "cxx flags")
+# 链接器标志
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--sysroot=${CMAKE_SYSROOT}")
+set(CMAKE_SHARED_LINKER_FLAGS_INIT "-Wl,--sysroot=${CMAKE_SYSROOT}")
 
-# 添加额外的定义，解决 isnan 问题
-add_definitions(-DHAVE_CMATH -DHAVE_STD_ISNAN)
+# 解决特定问题的补丁
+add_definitions(-D_GNU_SOURCE)
 add_definitions(-Disnan=std::isnan)
-# 添加GCC特定选项，以解决ARM NEON内建函数问题
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-builtin")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-builtin")
+
+# 不使用内建函数可能会解决ARM NEON问题
+add_definitions(-fno-builtin -fno-tree-vectorize)
+
+# 将原生编译器标志传递给CMAKE变量
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_INIT}" CACHE STRING "C flags" FORCE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_INIT}" CACHE STRING "CXX flags" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT}" CACHE STRING "Linker flags" FORCE)
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT}" CACHE STRING "Shared linker flags" FORCE)
