@@ -8,7 +8,7 @@ set(COMPILER_VERSION "9.3.0")
 
 # 基本编译器设置
 set(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM_PROCESSOR arm)
+set(CMAKE_SYSTEM_PROCESSOR armv7)
 
 # 指定交叉编译器
 set(CMAKE_C_COMPILER ${TOOLCHAIN_DIR}/bin/${TARGET_TRIPLE}-gcc)
@@ -35,6 +35,7 @@ set(CMAKE_C_FLAGS_INIT "-nostdinc \
 -isystem ${GCC_INCLUDE_DIR}-fixed \
 -isystem ${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/libc/usr/include \
 -isystem ${CMAKE_SYSROOT}/usr/include \
+ -march=armv7-a -mfloat-abi=hard -mfpu=neon \
 " CACHE STRING "C compiler flags")
 
 set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
@@ -45,7 +46,7 @@ set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
 -isystem ${GCC_INCLUDE_DIR}-fixed \
 -isystem ${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/libc/usr/include \
 -isystem ${CMAKE_SYSROOT}/usr/include \
--D__STRICT_ANSI__ -D_GLIBCXX_USE_C99_MATH=1 -D_GLIBCXX_USE_C99=1  \
+  -std=c++17 -D_GLIBCXX_USE_CXX11_ABI=1 -march=armv7-a -mfloat-abi=hard -mfpu=neon \
 " CACHE STRING "C++ compiler flags")
 
 # 链接器标志
@@ -54,14 +55,9 @@ set(CMAKE_SHARED_LINKER_FLAGS_INIT "-Wl,--sysroot=${CMAKE_SYSROOT}")
 
 # 解决特定问题的补丁
 add_definitions(-D_GNU_SOURCE)
-add_definitions(-Disnan=std::isnan)
-
 # 不使用内建函数可能会解决ARM NEON问题
 add_definitions(-fno-builtin -fno-tree-vectorize)
-# 在工具链文件中添加这些定义
-add_definitions(-D__STRICT_ANSI__)
-add_definitions(-D_GLIBCXX_USE_C99_MATH=1)
-add_definitions(-D_GLIBCXX_USE_C99=1)
+
 # 将原生编译器标志传递给CMAKE变量
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_INIT}" CACHE STRING "C flags" FORCE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_INIT}" CACHE STRING "CXX flags" FORCE)
