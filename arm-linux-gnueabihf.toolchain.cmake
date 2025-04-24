@@ -36,44 +36,37 @@ set(CMAKE_EXE_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT}/u
 set(CMAKE_SHARED_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT}/usr/lib")
 
 # cache flags
-# 明确添加需要的头文件路径
-set(CMAKE_C_FLAGS_INIT "-nostdinc  \
-  -isystem ${SYSROOT}/usr/include \
-  -isystem ${SYSROOT}/usr/include/linux \
-  -isystem ${SYSROOT}/usr/include/asm \
-  -isystem ${SYSROOT}/usr/include/asm-generic \
-  -isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
-  -isystem ${ARCH_ROOT}/libc/lib \
-  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/ \
-  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
-  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
-  -isystem ${SYSROOT}/usr/local/include \
-  -isystem ${SYSROOT}/include \
- -D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
+# 确保链接使用sysroot中的库
 
-#clude/flatbuffers/base.h:28:10: fatal error: cstdint: 没有那个文件或目录
-#28 | #include <cstdint>
-#|          ^~~~~~~~~
+# C编译标志 - 使用正确的包含顺序
+set(CMAKE_C_FLAGS_INIT "-nostdinc \
+-isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
+-isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
+-isystem ${SYSROOT}/usr/include \
+-isystem ${SYSROOT}/usr/include/linux \
+-isystem ${SYSROOT}/usr/include/asm \
+-isystem ${SYSROOT}/usr/include/asm-generic \
+-isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
+-isystem ${ARCH_ROOT}/libc/lib \
+-isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/ \
+-isystem ${SYSROOT}/usr/local/include \
+-isystem ${SYSROOT}/include \
+-D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
 
+# C++编译标志 - 使用正确的包含顺序
 set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
-   -isystem /home/vickyleu/build/arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/4.9.4/include \
-  -isystem /home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/4.9.4 \
-  -isystem /home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/4.9.4/arm-linux-gnueabihf \
-  -isystem /home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/4.9.4/backward \
-  -isystem /home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/4.9.4/tr1 \
-  -isystem ${SYSROOT}/usr/include \
-  -isystem ${SYSROOT}/usr/include/linux \
-  -isystem ${SYSROOT}/usr/include/asm \
-  -isystem ${SYSROOT}/usr/include/asm-generic \
-  -isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
-  -isystem ${ARCH_ROOT}/libc/lib \
-  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/ \
-  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
-  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
-  -isystem ${SYSROOT}/usr/local/include \
-  -isystem ${SYSROOT}/include \
-  -isystem ${ARCH_ROOT}/include/c++/4.9.4 \
-  -isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
-  -isystem ${ARCH_ROOT}/include/c++/4.9.4/tr1 \
-  -isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf " CACHE STRING "cxx flags")
-
+-isystem ${ARCH_ROOT}/include/c++/4.9.4 \
+-isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
+-isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
+-isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
+-isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
+-isystem ${SYSROOT}/usr/include \
+-isystem ${SYSROOT}/usr/include/linux \
+-isystem ${SYSROOT}/usr/include/asm \
+-isystem ${SYSROOT}/usr/include/asm-generic \
+-isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
+-isystem ${ARCH_ROOT}/libc/lib \
+-isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/ \
+-isystem ${SYSROOT}/usr/local/include \
+-isystem ${SYSROOT}/include \
+-D_GNU_SOURCE -std=c++11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "cxx flags")
