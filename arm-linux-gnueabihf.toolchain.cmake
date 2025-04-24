@@ -37,11 +37,21 @@ set(CMAKE_SHARED_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT
 
 # cache flags
 # 明确添加需要的头文件路径
-set(CMAKE_C_FLAGS_INIT "-nostdinc  -isystem ${CMAKE_SYSROOT}/usr/include \
+set(CMAKE_C_FLAGS_INIT "-nostdinc  \
+  -isystem ${CMAKE_SYSROOT}/usr/include \
+ -isystem ${CMAKE_SYSROOT}/usr/include/linux \
+ -isystem ${CMAKE_SYSROOT}/usr/include/asm \
+ -isystem ${CMAKE_SYSROOT}/usr/include/asm-generic \
+ -isystem ${CMAKE_SYSROOT}/usr/include/arm-linux-gnueabihf \
  -D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
 
 
-set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++  -isystem ${CMAKE_SYSROOT}/usr/include \
+set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
+ -isystem ${CMAKE_SYSROOT}/usr/include \
+ -isystem ${CMAKE_SYSROOT}/usr/include/linux \
+ -isystem ${CMAKE_SYSROOT}/usr/include/asm \
+ -isystem ${CMAKE_SYSROOT}/usr/include/asm-generic \
+ -isystem ${CMAKE_SYSROOT}/usr/include/arm-linux-gnueabihf \
  -isystem ${CMAKE_ARCH_ROOT}/include/c++/4.9.4 \
  -isystem ${CMAKE_ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
 -D_GNU_SOURCE -std=c++17 -D_GLIBCXX_USE_CXX11_ABI=1  -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "cxx flags")
