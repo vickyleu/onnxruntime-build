@@ -71,7 +71,7 @@ set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
   -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
   -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
   -isystem ${SYSROOT}/usr/local/include \
-  -isystem ${SYSROOT}/include
+  -isystem ${SYSROOT}/include \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4 \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4/tr1 \
