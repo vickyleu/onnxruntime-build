@@ -38,20 +38,34 @@ set(CMAKE_SHARED_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT
 # cache flags
 # 明确添加需要的头文件路径
 set(CMAKE_C_FLAGS_INIT "-nostdinc  \
-  -isystem ${CMAKE_SYSROOT}/usr/include \
- -isystem ${CMAKE_SYSROOT}/usr/include/linux \
- -isystem ${CMAKE_SYSROOT}/usr/include/asm \
- -isystem ${CMAKE_SYSROOT}/usr/include/asm-generic \
- -isystem ${CMAKE_SYSROOT}/usr/include/arm-linux-gnueabihf \
+  -isystem ${SYSROOT}/usr/include \
+  -isystem ${SYSROOT}/usr/include/linux \
+  -isystem ${SYSROOT}/usr/include/asm \
+  -isystem ${SYSROOT}/usr/include/asm-generic \
+  -isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
+  -isystem ${ARCH_ROOT}/libc/lib \
+  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/ \
+  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
+  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
+  -isystem ${SYSROOT}/usr/local/include \
+  -isystem ${SYSROOT}/include \
  -D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
 
 
 set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
- -isystem ${CMAKE_SYSROOT}/usr/include \
- -isystem ${CMAKE_SYSROOT}/usr/include/linux \
- -isystem ${CMAKE_SYSROOT}/usr/include/asm \
- -isystem ${CMAKE_SYSROOT}/usr/include/asm-generic \
- -isystem ${CMAKE_SYSROOT}/usr/include/arm-linux-gnueabihf \
- -isystem ${CMAKE_ARCH_ROOT}/include/c++/4.9.4 \
- -isystem ${CMAKE_ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
--D_GNU_SOURCE -std=c++17 -D_GLIBCXX_USE_CXX11_ABI=1  -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "cxx flags")
+  -isystem ${SYSROOT}/usr/include \
+  -isystem ${SYSROOT}/usr/include/linux \
+  -isystem ${SYSROOT}/usr/include/asm \
+  -isystem ${SYSROOT}/usr/include/asm-generic \
+  -isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
+  -isystem ${ARCH_ROOT}/libc/lib \
+  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/ \
+  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
+  -isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
+  -isystem ${SYSROOT}/usr/local/include \
+  -isystem ${SYSROOT}/include \
+  -isystem ${ARCH_ROOT}/include/c++/4.9.4 \
+  -isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
+  -isystem ${ARCH_ROOT}/include/c++/4.9.4/tr1 \
+  -isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
+  …其它编译选项…" CACHE STRING "cxx flags")
