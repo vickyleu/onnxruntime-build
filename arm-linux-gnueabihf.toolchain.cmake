@@ -24,11 +24,10 @@ set(CMAKE_CXX_SYSTEM_INCLUDE_PATH "${CMAKE_SYSROOT}/usr/include")
 set(CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES "")
 set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "")
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CMAKE_SYSROOT}/usr/lib")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L${CMAKE_SYSROOT}/usr/lib")
-
+set(CMAKE_EXE_LINKER_FLAGS "-L${CMAKE_SYSROOT}/usr/lib -Wl,-rpath-link,${CMAKE_SYSROOT}/lib -Wl,-rpath-link,${CMAKE_SYSROOT}/usr/lib")
+set(CMAKE_SHARED_LINKER_FLAGS "-L${CMAKE_SYSROOT}/usr/lib -Wl,-rpath-link,${CMAKE_SYSROOT}/lib -Wl,-rpath-link,${CMAKE_SYSROOT}/usr/lib")
 # cache flags
 # 统一设置编译标志
-set(CMAKE_C_FLAGS_INIT "-D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon" CACHE STRING "c flags")
-set(CMAKE_CXX_FLAGS_INIT "-D_GNU_SOURCE -std=c++17 -D_GLIBCXX_USE_CXX11_ABI=1 -march=armv7-a -mfloat-abi=hard -mfpu=neon" CACHE STRING "cxx flags")
+set(CMAKE_C_FLAGS_INIT "-D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon -nostdinc -I${CMAKE_SYSROOT}/usr/include/c++/4.9.4/arm-linux-gnueabihf" CACHE STRING "c flags")
+set(CMAKE_CXX_FLAGS_INIT "-D_GNU_SOURCE -std=c++17 -D_GLIBCXX_USE_CXX11_ABI=1 -march=armv7-a -mfloat-abi=hard -mfpu=neon -nostdinc++ -I${CMAKE_SYSROOT}/usr/include/c++/4.9.4 -I${CMAKE_SYSROOT}/usr/include/c++/4.9.4/arm-linux-gnueabihf" CACHE STRING "cxx flags")
 
