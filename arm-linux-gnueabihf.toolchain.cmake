@@ -67,5 +67,4 @@ set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4 \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
   -isystem ${ARCH_ROOT}/include/c++/4.9.4/tr1 \
-  -isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
-  …其它编译选项…" CACHE STRING "cxx flags")
+  -isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf " CACHE STRING "cxx flags")
