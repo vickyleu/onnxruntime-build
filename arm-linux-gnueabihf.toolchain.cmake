@@ -1,7 +1,10 @@
 # Copied from https://github.com/Tencent/ncnn/blob/master/toolchains/arm-linux-gnueabihf.toolchain.cmake
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR armv7)
-set(CMAKE_CXX_STANDARD "c++17")
+set(CMAKE_CXX_STANDARD 17)            # 只填写整数
+set(CMAKE_CXX_STANDARD_REQUIRED ON)   # 如果编译器不支持则报错
+set(CMAKE_CXX_EXTENSIONS ON)         # GNU 扩展，是否使用纯标准模式
+
 set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc")
 set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++")
 # 下载的工具链路径sysroot 强制关闭c23特性
