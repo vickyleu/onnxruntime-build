@@ -15,6 +15,7 @@ set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++-9")
 # 下载的工具链路径sysroot 强制关闭c23特性
 # https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/4.9-2017.01/arm-linux-gnueabihf/sysroot-eglibc-linaro-2017.01-arm-linux-gnueabihf.tar.xz
 # 设置变量以便于调试和简化路径
+# 设置变量以便于调试和简化路径
 set(ARCH_ROOT "/home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf")
 set(TOOLCHAIN_ROOT "/home/vickyleu/build/arm-linux-gnueabihf")
 # 确保设置正确的 SYSROOT
@@ -37,20 +38,7 @@ set(CMAKE_EXE_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT}/u
 set(CMAKE_SHARED_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT}/usr/lib")
 
 # C编译标志
-set(CMAKE_C_FLAGS_INIT "-nostdinc \
--isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include \
--isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
--isystem ${SYSROOT}/usr/include \
--isystem ${SYSROOT}/usr/include/linux \
--isystem ${SYSROOT}/usr/include/asm \
--isystem ${SYSROOT}/usr/include/asm-generic \
--isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
--isystem ${SYSROOT}/usr/local/include \
--isystem ${SYSROOT}/include \
--D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
-
-# C++编译标志 - 确保 C++ 标准库头文件在最前面
-set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
+set(CMAKE_C_FLAGS_INIT "\
 -isystem ${ARCH_ROOT}/include/c++/4.9.4 \
 -isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
 -isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
@@ -63,4 +51,27 @@ set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
 -isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
 -isystem ${SYSROOT}/usr/local/include \
 -isystem ${SYSROOT}/include \
--D_GNU_SOURCE -std=c++11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "cxx flags")
+-D_GNU_SOURCE -std=gnu11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
+
+# C++编译标志 - 移除 -nostdinc 和 -nostdinc++，并使用 gnu++11 而不是 c++11
+set(CMAKE_CXX_FLAGS_INIT "\
+-isystem ${ARCH_ROOT}/include/c++/4.9.4 \
+-isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
+-isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
+-isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include \
+-isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
+-isystem ${SYSROOT}/usr/include \
+-isystem ${SYSROOT}/usr/include/linux \
+-isystem ${SYSROOT}/usr/include/asm \
+-isystem ${SYSROOT}/usr/include/asm-generic \
+-isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
+-isystem ${SYSROOT}/usr/local/include \
+-isystem ${SYSROOT}/include \
+-D_GNU_SOURCE -std=gnu++11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "cxx flags")
+
+# 添加额外的定义，解决 isnan 问题
+add_definitions(-DHAVE_CMATH -DHAVE_STD_ISNAN)
+add_definitions(-Disnan=std::isnan)
+# 添加GCC特定选项，以解决ARM NEON内建函数问题
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-builtin")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-builtin")
