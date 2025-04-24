@@ -3,18 +3,16 @@
 
 # 基本路径设置
 set(TOOLCHAIN_DIR "/home/vickyleu/build/arm-linux-gnueabihf")
-set(TARGET_TRIPLE "arm-linux-gnueabihf")
-set(COMPILER_VERSION "4.9.4")
+set(TARGET_TRIPLE "arm-buildroot-linux-gnueabihf")
+set(COMPILER_VERSION "9.3.0")
 
 # 基本编译器设置
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
 # 指定交叉编译器
-set(CMAKE_C_COMPILER ${TARGET_TRIPLE}-gcc-9)
-set(CMAKE_CXX_COMPILER ${TARGET_TRIPLE}-g++-9)
-#set(CMAKE_C_COMPILER ${TOOLCHAIN_DIR}/bin/${TARGET_TRIPLE}-gcc-9)
-#set(CMAKE_CXX_COMPILER ${TOOLCHAIN_DIR}/bin/${TARGET_TRIPLE}-g++-9)
+set(CMAKE_C_COMPILER ${TOOLCHAIN_DIR}/bin/${TARGET_TRIPLE}-gcc)
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_DIR}/bin/${TARGET_TRIPLE}-g++)
 
 # 设置sysroot
 set(CMAKE_SYSROOT ${TOOLCHAIN_DIR}/${TARGET_TRIPLE}/sysroot)
