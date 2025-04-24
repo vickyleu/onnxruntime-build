@@ -24,7 +24,6 @@ endif()
 add_definitions(-D_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS)
 
 add_subdirectory(${ONNXRUNTIME_SOURCE_DIR}/cmake onnxruntime EXCLUDE_FROM_ALL)
-add_compile_options(-include ${CMAKE_SOURCE_DIR}/disable_c23.h)
 
 message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
