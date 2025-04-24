@@ -14,14 +14,15 @@ set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++-9")
 # 设置sysroot路径
 # 下载的工具链路径sysroot 强制关闭c23特性
 # https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/4.9-2017.01/arm-linux-gnueabihf/sysroot-eglibc-linaro-2017.01-arm-linux-gnueabihf.tar.xz
-set(CMAKE_ARCH_ROOT "/home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf")
-set(CMAKE_SYSROOT "${CMAKE_ARCH_ROOT}/sysroot")
-
-# 设置Iconv内置标志
-set(Iconv_IS_BUILT_IN ON)
+# 设置变量以便于调试和简化路径
+set(ARCH_ROOT "/home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf")
+set(TOOLCHAIN_ROOT "/home/vickyleu/build/arm-linux-gnueabihf")
+# 确保设置正确的 SYSROOT
+set(SYSROOT "${CMAKE_SYSROOT}")
 
 # 指定查找程序、库和包的路径前缀
 set(CMAKE_FIND_ROOT_PATH ${CMAKE_SYSROOT})
+
 # 调整查找策略
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
@@ -35,38 +36,31 @@ set(CMAKE_CXX_SYSTEM_INCLUDE_PATH "${CMAKE_SYSROOT}/usr/include")
 set(CMAKE_EXE_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT}/usr/lib")
 set(CMAKE_SHARED_LINKER_FLAGS " -Wl,--sysroot=${CMAKE_SYSROOT} -L${CMAKE_SYSROOT}/usr/lib")
 
-# cache flags
-# 确保链接使用sysroot中的库
-
-# C编译标志 - 使用正确的包含顺序
+# C编译标志
 set(CMAKE_C_FLAGS_INIT "-nostdinc \
--isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
--isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
+-isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include \
+-isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
 -isystem ${SYSROOT}/usr/include \
 -isystem ${SYSROOT}/usr/include/linux \
 -isystem ${SYSROOT}/usr/include/asm \
 -isystem ${SYSROOT}/usr/include/asm-generic \
 -isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
--isystem ${ARCH_ROOT}/libc/lib \
--isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/ \
 -isystem ${SYSROOT}/usr/local/include \
 -isystem ${SYSROOT}/include \
 -D_GNU_SOURCE -std=c11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "c flags")
 
-# C++编译标志 - 使用正确的包含顺序
+# C++编译标志 - 确保 C++ 标准库头文件在最前面
 set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++ \
 -isystem ${ARCH_ROOT}/include/c++/4.9.4 \
 -isystem ${ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
 -isystem ${ARCH_ROOT}/include/c++/4.9.4/backward \
--isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include \
--isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
+-isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include \
+-isystem ${TOOLCHAIN_ROOT}/lib/gcc/arm-linux-gnueabihf/4.9.4/include-fixed \
 -isystem ${SYSROOT}/usr/include \
 -isystem ${SYSROOT}/usr/include/linux \
 -isystem ${SYSROOT}/usr/include/asm \
 -isystem ${SYSROOT}/usr/include/asm-generic \
 -isystem ${SYSROOT}/usr/include/arm-linux-gnueabihf \
--isystem ${ARCH_ROOT}/libc/lib \
--isystem ${ARCH_ROOT}/../lib/gcc/arm-linux-gnueabihf/4.9.4/ \
 -isystem ${SYSROOT}/usr/local/include \
 -isystem ${SYSROOT}/include \
 -D_GNU_SOURCE -std=c++11 -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "cxx flags")
