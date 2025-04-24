@@ -14,7 +14,8 @@ set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++-9")
 # 设置sysroot路径
 # 下载的工具链路径sysroot 强制关闭c23特性
 # https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/4.9-2017.01/arm-linux-gnueabihf/sysroot-eglibc-linaro-2017.01-arm-linux-gnueabihf.tar.xz
-set(CMAKE_SYSROOT "/home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/sysroot")
+set(CMAKE_ARCH_ROOT "/home/vickyleu/build/arm-linux-gnueabihf/arm-linux-gnueabihf/")
+set(CMAKE_SYSROOT "${CMAKE_ARCH_ROOT}/sysroot")
 
 # 设置Iconv内置标志
 set(Iconv_IS_BUILT_IN ON)
@@ -41,6 +42,6 @@ set(CMAKE_C_FLAGS_INIT "-nostdinc  -isystem ${CMAKE_SYSROOT}/usr/include \
 
 
 set(CMAKE_CXX_FLAGS_INIT "-nostdinc -nostdinc++  -isystem ${CMAKE_SYSROOT}/usr/include \
- -isystem ${CMAKE_SYSROOT}/usr/include/c++/4.9.4 \
- -isystem ${CMAKE_SYSROOT}/usr/include/c++/4.9.4/arm-linux-gnueabihf \
+ -isystem ${CMAKE_ARCH_ROOT}/include/c++/4.9.4 \
+ -isystem ${CMAKE_ARCH_ROOT}/include/c++/4.9.4/arm-linux-gnueabihf \
 -D_GNU_SOURCE -std=c++17 -D_GLIBCXX_USE_CXX11_ABI=1  -march=armv7-a -mfloat-abi=hard -mfpu=neon " CACHE STRING "cxx flags")
